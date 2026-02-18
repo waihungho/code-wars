@@ -12,6 +12,7 @@ import type {
   Card,
   BattleResult,
   AbilityTriggerResult,
+  EquipmentItem,
 } from "./types";
 
 export function pickRandomDimensions(): [Dimension, Dimension, Dimension] {
@@ -61,13 +62,84 @@ function rollAbilityTrigger(language: Language): boolean {
   return Math.random() < ability.triggerChance;
 }
 
+export function applyEquipmentModifiers(
+  baseStats: Stats,
+  equippedItems: EquipmentItem[],
+  baseTriggerChance: number,
+  basePassiveBonus: number
+): {
+  stats: Stats;
+  triggerChance: number;
+  passiveMultiplier: number;
+  xpMultiplier: number;
+} {
+  const stats = { ...baseStats };
+  let triggerChance = baseTriggerChance;
+  let passiveMultiplier = 1;
+  let xpMultiplier = 1;
+
+  for (const item of equippedItems) {
+    switch (item.effectType) {
+      case "stat_percent": {
+        const stat = item.effectValue.stat as keyof Stats | undefined;
+        const pct = (item.effectValue.percent as number) / 100;
+        if (stat && stats[stat] !== undefined) {
+          stats[stat] = Math.round(stats[stat] * (1 + pct));
+        }
+        break;
+      }
+      case "all_stats_percent": {
+        const pct = (item.effectValue.percent as number) / 100;
+        for (const key of Object.keys(stats) as (keyof Stats)[]) {
+          stats[key] = Math.round(stats[key] * (1 + pct));
+        }
+        break;
+      }
+      case "trigger_chance": {
+        const chance = item.effectValue.chance as number;
+        triggerChance = Math.max(triggerChance, chance);
+        break;
+      }
+      case "passive_multiply": {
+        const mult = item.effectValue.multiplier as number;
+        passiveMultiplier = Math.max(passiveMultiplier, mult);
+        break;
+      }
+      case "overcharge": {
+        const pMult = item.effectValue.passiveMultiplier as number;
+        const chance = item.effectValue.chance as number;
+        passiveMultiplier = Math.max(passiveMultiplier, pMult);
+        triggerChance = Math.max(triggerChance, chance);
+        break;
+      }
+      case "xp_multiplier": {
+        const mult = item.effectValue.multiplier as number;
+        xpMultiplier = Math.max(xpMultiplier, mult);
+        break;
+      }
+      case "ai_core": {
+        const allPct = (item.effectValue.allStatsPercent as number) / 100;
+        for (const key of Object.keys(stats) as (keyof Stats)[]) {
+          stats[key] = Math.round(stats[key] * (1 + allPct));
+        }
+        triggerChance = Math.max(triggerChance, item.effectValue.triggerChance as number);
+        passiveMultiplier = Math.max(passiveMultiplier, item.effectValue.passiveMultiplier as number);
+        xpMultiplier = Math.max(xpMultiplier, item.effectValue.xpMultiplier as number);
+        break;
+      }
+    }
+  }
+
+  return { stats, triggerChance, passiveMultiplier, xpMultiplier };
+}
+
 export function resolveBattle(
   playerCard: Card,
   aiStats: Stats,
-  dimensions: [Dimension, Dimension, Dimension]
+  dimensions: [Dimension, Dimension, Dimension],
+  equippedItems: EquipmentItem[] = []
 ): BattleResult {
   const ability = ABILITIES[playerCard.language];
-  const triggered = rollAbilityTrigger(playerCard.language);
 
   // Build effective player stats with passive bonus
   const playerStats = applyPassiveBonus(
@@ -80,6 +152,24 @@ export function resolveBattle(
     },
     playerCard.language
   );
+
+  // Apply equipment modifiers
+  const mods = applyEquipmentModifiers(
+    playerStats,
+    equippedItems,
+    ability.triggerChance,
+    ability.passiveBonus
+  );
+  Object.assign(playerStats, mods.stats);
+
+  // Apply extra passive multiplier from equipment
+  if (mods.passiveMultiplier > 1) {
+    const dim = ability.passiveDimension;
+    const extraBonus = ability.passiveBonus * (mods.passiveMultiplier - 1);
+    playerStats[dim] = Math.round(playerStats[dim] * (1 + extraBonus));
+  }
+
+  const triggered = Math.random() < mods.triggerChance;
 
   // Clone AI stats so triggered abilities can mutate them
   const effectiveAi = { ...aiStats };
@@ -249,6 +339,9 @@ export function resolveBattle(
   ) {
     xpEarned *= 2;
   }
+
+  // Apply equipment XP multiplier
+  xpEarned = Math.round(xpEarned * mods.xpMultiplier);
 
   const abilityResult: AbilityTriggerResult | null = triggered
     ? {

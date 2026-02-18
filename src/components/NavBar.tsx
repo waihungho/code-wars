@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/collection", label: "VAULT", icon: "#" },
   { href: "/gacha", label: "SUMMON", icon: "*" },
   { href: "/battle", label: "ARENA", icon: "!" },
+  { href: "/equipment", label: "EQUIP", icon: "+" },
   { href: "/leaderboard", label: "RANKS", icon: "^" },
 ];
 

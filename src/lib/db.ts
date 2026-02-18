@@ -41,10 +41,38 @@ interface LocalBattleLog {
   created_at: string;
 }
 
+interface LocalInventoryItem {
+  id: string;
+  player_id: string;
+  item_id: string;
+  purchased_at: string;
+}
+
+interface LocalCardEquipment {
+  id: string;
+  card_id: string;
+  inventory_id: string;
+  slot_type: string;
+  equipped_at: string;
+}
+
+interface LocalSolTransaction {
+  id: string;
+  player_id: string;
+  tx_signature: string;
+  sol_amount: number;
+  item_id: string;
+  status: string;
+  created_at: string;
+}
+
 const local = {
   players: [] as LocalPlayer[],
   cards: [] as LocalCard[],
   battleLogs: [] as LocalBattleLog[],
+  inventory: [] as LocalInventoryItem[],
+  cardEquipment: [] as LocalCardEquipment[],
+  solTransactions: [] as LocalSolTransaction[],
 };
 
 function uuid() {
@@ -354,6 +382,202 @@ export async function decrementPulls(playerId: string) {
     .from("players")
     .update({ free_pulls_remaining: player.free_pulls_remaining - 1 })
     .eq("id", playerId);
+}
+
+// ---------------------------------------------------------------------------
+// Equipment — Inventory
+// ---------------------------------------------------------------------------
+export async function getPlayerInventory(playerId: string) {
+  if (!isSupabaseConfigured) {
+    return local.inventory.filter((i) => i.player_id === playerId);
+  }
+  const supabase = getSupabase()!;
+  const { data, error } = await supabase
+    .from("player_inventory")
+    .select("*")
+    .eq("player_id", playerId)
+    .order("purchased_at", { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+export async function addToInventory(playerId: string, itemId: string) {
+  if (!isSupabaseConfigured) {
+    const entry: LocalInventoryItem = {
+      id: uuid(),
+      player_id: playerId,
+      item_id: itemId,
+      purchased_at: new Date().toISOString(),
+    };
+    local.inventory.push(entry);
+    return { ...entry };
+  }
+  const supabase = getSupabase()!;
+  const { data, error } = await supabase
+    .from("player_inventory")
+    .insert({ player_id: playerId, item_id: itemId })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function removeFromInventory(inventoryId: string) {
+  if (!isSupabaseConfigured) {
+    local.inventory = local.inventory.filter((i) => i.id !== inventoryId);
+    return;
+  }
+  const supabase = getSupabase()!;
+  const { error } = await supabase.from("player_inventory").delete().eq("id", inventoryId);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Equipment — Card Slots
+// ---------------------------------------------------------------------------
+export async function getCardEquipment(cardId: string) {
+  if (!isSupabaseConfigured) {
+    return local.cardEquipment.filter((e) => e.card_id === cardId);
+  }
+  const supabase = getSupabase()!;
+  const { data, error } = await supabase
+    .from("card_equipment")
+    .select("*")
+    .eq("card_id", cardId);
+  if (error) throw error;
+  return data;
+}
+
+export async function equipItem(cardId: string, inventoryId: string, slotType: string) {
+  if (!isSupabaseConfigured) {
+    const existing = local.cardEquipment.find(
+      (e) => e.card_id === cardId && e.slot_type === slotType
+    );
+    if (existing) throw new Error("Slot already occupied");
+    const entry: LocalCardEquipment = {
+      id: uuid(),
+      card_id: cardId,
+      inventory_id: inventoryId,
+      slot_type: slotType,
+      equipped_at: new Date().toISOString(),
+    };
+    local.cardEquipment.push(entry);
+    return { ...entry };
+  }
+  const supabase = getSupabase()!;
+  const { data, error } = await supabase
+    .from("card_equipment")
+    .insert({ card_id: cardId, inventory_id: inventoryId, slot_type: slotType })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function unequipItem(equipmentId: string) {
+  if (!isSupabaseConfigured) {
+    local.cardEquipment = local.cardEquipment.filter((e) => e.id !== equipmentId);
+    return;
+  }
+  const supabase = getSupabase()!;
+  const { error } = await supabase.from("card_equipment").delete().eq("id", equipmentId);
+  if (error) throw error;
+}
+
+export async function unequipAllFromCard(cardId: string) {
+  if (!isSupabaseConfigured) {
+    local.cardEquipment = local.cardEquipment.filter((e) => e.card_id !== cardId);
+    return;
+  }
+  const supabase = getSupabase()!;
+  const { error } = await supabase.from("card_equipment").delete().eq("card_id", cardId);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Equipment — SOL Transactions
+// ---------------------------------------------------------------------------
+export async function recordTransaction(tx: {
+  player_id: string;
+  tx_signature: string;
+  sol_amount: number;
+  item_id: string;
+  status: string;
+}) {
+  if (!isSupabaseConfigured) {
+    const entry: LocalSolTransaction = {
+      id: uuid(),
+      ...tx,
+      created_at: new Date().toISOString(),
+    };
+    local.solTransactions.push(entry);
+    return { ...entry };
+  }
+  const supabase = getSupabase()!;
+  const { data, error } = await supabase
+    .from("sol_transactions")
+    .insert(tx)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateTransactionStatus(txId: string, status: string) {
+  if (!isSupabaseConfigured) {
+    const tx = local.solTransactions.find((t) => t.id === txId);
+    if (tx) tx.status = status;
+    return;
+  }
+  const supabase = getSupabase()!;
+  const { error } = await supabase
+    .from("sol_transactions")
+    .update({ status })
+    .eq("id", txId);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Equipment — Player bonus resources (consumables)
+// ---------------------------------------------------------------------------
+export async function addBonusPulls(playerId: string, amount: number) {
+  if (!isSupabaseConfigured) {
+    const player = local.players.find((p) => p.id === playerId);
+    if (player) player.free_pulls_remaining += amount;
+    return;
+  }
+  const supabase = getSupabase()!;
+  const { data: player } = await supabase
+    .from("players")
+    .select("free_pulls_remaining")
+    .eq("id", playerId)
+    .single();
+  if (!player) throw new Error("Player not found");
+  const { error } = await supabase
+    .from("players")
+    .update({ free_pulls_remaining: player.free_pulls_remaining + amount })
+    .eq("id", playerId);
+  if (error) throw error;
+}
+
+export async function addBonusBattles(playerId: string, amount: number) {
+  if (!isSupabaseConfigured) {
+    const player = local.players.find((p) => p.id === playerId);
+    if (player) player.daily_battles = Math.max(0, player.daily_battles - amount);
+    return;
+  }
+  const supabase = getSupabase()!;
+  const { data: player } = await supabase
+    .from("players")
+    .select("daily_battles")
+    .eq("id", playerId)
+    .single();
+  if (!player) throw new Error("Player not found");
+  const { error } = await supabase
+    .from("players")
+    .update({ daily_battles: Math.max(0, player.daily_battles - amount) })
+    .eq("id", playerId);
+  if (error) throw error;
 }
 
 // ---------------------------------------------------------------------------
