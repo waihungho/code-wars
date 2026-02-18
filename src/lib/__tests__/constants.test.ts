@@ -10,8 +10,8 @@ import {
 } from "../constants";
 
 describe("Game Constants", () => {
-  test("has 8 languages", () => {
-    expect(LANGUAGES).toHaveLength(8);
+  test("has 28 languages", () => {
+    expect(LANGUAGES).toHaveLength(28);
     expect(LANGUAGES).toContain("Assembly");
     expect(LANGUAGES).toContain("C");
     expect(LANGUAGES).toContain("Rust");
