@@ -1,4 +1,4 @@
-import type { Language, Rarity, Dimension, Stats, Ability } from "./types";
+import type { Language, Rarity, Dimension, Stats, Ability, EquipmentItem } from "./types";
 
 export const LANGUAGES: Language[] = [
   "Assembly",
@@ -327,3 +327,37 @@ export const ABILITIES: Record<Language, Ability> = {
     triggerChance: ABILITY_TRIGGER_CHANCE,
   },
 };
+
+// ---------------------------------------------------------------------------
+// Equipment System
+// ---------------------------------------------------------------------------
+export const TREASURY_WALLET = "11111111111111111111111111111112"; // devnet treasury — replace with actual
+
+export const UNEQUIP_FEE_SOL = 0.01;
+
+export const EQUIPMENT_CATALOG: EquipmentItem[] = [
+  // --- Consumables ---
+  { id: "summon-3",         name: "Extra Summon (x3)",       slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 3 },                                                    solPrice: 0.01,  description: "+3 gacha pulls" },
+  { id: "summon-10",        name: "Extra Summon (x10)",      slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 10 },                                                   solPrice: 0.03,  description: "+10 gacha pulls" },
+  { id: "summon-50",        name: "Extra Summon (x50)",      slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 50 },                                                   solPrice: 0.12,  description: "+50 gacha pulls" },
+  { id: "battle-10",        name: "Battle Pass (x10)",       slotType: "consumable",           effectType: "add_battles",       effectValue: { amount: 10 },                                                   solPrice: 0.01,  description: "+10 daily battles" },
+  { id: "battle-20",        name: "Battle Pass (x20)",       slotType: "consumable",           effectType: "add_battles",       effectValue: { amount: 20 },                                                   solPrice: 0.02,  description: "+20 daily battles" },
+  { id: "battle-unlimited", name: "Unlimited Battle Pass",   slotType: "consumable",           effectType: "unlimited_battles", effectValue: { hours: 24 },                                                    solPrice: 0.1,   description: "Unlimited battles for 24h" },
+  // --- Stat Boost (Slot 1) ---
+  { id: "stat-chip-1",      name: "Stat Chip I",             slotType: "stat_boost",           effectType: "stat_percent",      effectValue: { percent: 10 },                                                  solPrice: 0.05,  description: "+10% to one stat" },
+  { id: "stat-chip-2",      name: "Stat Chip II",            slotType: "stat_boost",           effectType: "stat_percent",      effectValue: { percent: 25 },                                                  solPrice: 0.2,   description: "+25% to one stat" },
+  { id: "stat-chip-3",      name: "Stat Chip III",           slotType: "stat_boost",           effectType: "stat_percent",      effectValue: { percent: 50 },                                                  solPrice: 0.5,   description: "+50% to one stat" },
+  { id: "omni-chip",        name: "Omni Chip",               slotType: "stat_boost",           effectType: "all_stats_percent", effectValue: { percent: 15 },                                                  solPrice: 1.0,   description: "+15% to ALL stats" },
+  // --- Ability Enhancement (Slot 2) ---
+  { id: "trigger-amp-1",    name: "Trigger Amplifier I",     slotType: "ability_enhancement",  effectType: "trigger_chance",    effectValue: { chance: 0.45 },                                                 solPrice: 0.1,   description: "Ability trigger 30% → 45%" },
+  { id: "trigger-amp-2",    name: "Trigger Amplifier II",    slotType: "ability_enhancement",  effectType: "trigger_chance",    effectValue: { chance: 0.60 },                                                 solPrice: 0.35,  description: "Ability trigger 30% → 60%" },
+  { id: "passive-boost",    name: "Passive Booster",         slotType: "ability_enhancement",  effectType: "passive_multiply",  effectValue: { multiplier: 2 },                                                solPrice: 0.15,  description: "Passive ability bonus doubled" },
+  { id: "overcharge",       name: "Ability Overcharge",      slotType: "ability_enhancement",  effectType: "overcharge",        effectValue: { passiveMultiplier: 2, chance: 0.50 },                            solPrice: 0.75,  description: "Passive doubled + trigger 50%" },
+  // --- Utility (Slot 3) ---
+  { id: "dim-scout",        name: "Dimension Scout",         slotType: "utility",              effectType: "preview_dimension", effectValue: { count: 1 },                                                     solPrice: 0.05,  description: "Preview 1 of 3 battle dimensions" },
+  { id: "xp-magnet-1",      name: "XP Magnet I",             slotType: "utility",              effectType: "xp_multiplier",     effectValue: { multiplier: 1.5 },                                              solPrice: 0.08,  description: "+50% XP from battles" },
+  { id: "xp-magnet-2",      name: "XP Magnet II",            slotType: "utility",              effectType: "xp_multiplier",     effectValue: { multiplier: 2.0 },                                              solPrice: 0.3,   description: "+100% XP from battles" },
+  { id: "lucky-charm",      name: "Lucky Charm",             slotType: "utility",              effectType: "rarity_boost",      effectValue: { bonus: 0.05 },                                                  solPrice: 0.5,   description: "+5% higher rarity chance" },
+  // --- AI Core (Special Slot 4) ---
+  { id: "ai-core",          name: "AI Core",                 slotType: "ai_core",              effectType: "ai_core",           effectValue: { allStatsPercent: 50, triggerChance: 0.70, passiveMultiplier: 3, xpMultiplier: 2.0 }, solPrice: 10, description: "+50% ALL stats, trigger 70%, passive x3, +100% XP" },
+];

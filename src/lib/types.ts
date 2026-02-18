@@ -94,3 +94,40 @@ export interface BattleResult {
   abilityTriggered: AbilityTriggerResult | null;
   isPracticeMode: boolean;
 }
+
+export type SlotType = "stat_boost" | "ability_enhancement" | "utility" | "ai_core" | "consumable";
+
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  slotType: SlotType;
+  effectType: string;
+  effectValue: Record<string, number | string>;
+  solPrice: number;
+  description: string;
+}
+
+export interface InventoryItem {
+  id: string;
+  playerId: string;
+  itemId: string;
+  purchasedAt: string;
+}
+
+export interface CardEquipment {
+  id: string;
+  cardId: string;
+  inventoryId: string;
+  slotType: SlotType;
+  equippedAt: string;
+}
+
+export interface SolTransaction {
+  id: string;
+  playerId: string;
+  txSignature: string;
+  solAmount: number;
+  itemId: string;
+  status: "pending" | "confirmed" | "failed";
+  createdAt: string;
+}
