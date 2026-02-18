@@ -8,26 +8,17 @@ import {
   insertBattleLog,
   updateCardStats,
   updatePlayerMaterials,
-  resetDailyPulls,
+  resetDailyLimits,
+  getPlayerDailyBattles,
   getLeaderboardByWins,
   getLeaderboardByWinRate,
   getLeaderboardByStrongestCard,
 } from "../db";
 
-// Mock supabase
+// Mock supabase — demo mode (no env vars)
 vi.mock("../supabase", () => ({
-  supabase: {
-    from: vi.fn().mockReturnThis(),
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    single: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    rpc: vi.fn(),
-  },
+  isSupabaseConfigured: false,
+  getSupabase: () => null,
 }));
 
 describe("DB Access Layer", () => {
@@ -63,8 +54,12 @@ describe("DB Access Layer", () => {
     expect(typeof updatePlayerMaterials).toBe("function");
   });
 
-  test("resetDailyPulls is a function", () => {
-    expect(typeof resetDailyPulls).toBe("function");
+  test("resetDailyLimits is a function", () => {
+    expect(typeof resetDailyLimits).toBe("function");
+  });
+
+  test("getPlayerDailyBattles is a function", () => {
+    expect(typeof getPlayerDailyBattles).toBe("function");
   });
 
   test("leaderboard functions exist", () => {

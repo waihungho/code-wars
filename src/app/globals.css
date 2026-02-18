@@ -2,7 +2,7 @@
 
 :root {
   --background: #030712;
-  --foreground: #f9fafb;
+  --foreground: #e2e8f0;
 }
 
 @theme inline {
@@ -15,12 +15,584 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
+/* Scanline overlay for tech feel */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  z-index: 9999;
+}
+
+/* Animations */
 @keyframes fade-in {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.6); }
+}
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes card-reveal {
+  0% { opacity: 0; transform: scale(0.6) rotateY(180deg); }
+  60% { opacity: 1; transform: scale(1.05) rotateY(0deg); }
+  100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+}
+.animate-card-reveal {
+  animation: card-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Rarity border system ── */
+
+/* Rare: slow pulse glow */
+@keyframes rare-shimmer {
+  0%, 100% { box-shadow: 0 0 8px rgba(96, 165, 250, 0.3), inset 0 0 8px rgba(96, 165, 250, 0.05); }
+  50% { box-shadow: 0 0 16px rgba(96, 165, 250, 0.5), inset 0 0 12px rgba(96, 165, 250, 0.1); }
+}
+.rarity-rare {
+  animation: rare-shimmer 3s ease-in-out infinite;
+}
+
+/* Legendary: rotating gold conic-gradient border */
+@keyframes border-rotate {
+  0% { --border-angle: 0deg; }
+  100% { --border-angle: 360deg; }
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.rarity-legendary {
+  position: relative;
+  border-color: transparent !important;
+  background:
+    linear-gradient(to bottom, rgba(30, 20, 5, 0.95), rgba(20, 15, 5, 0.9)) padding-box,
+    conic-gradient(from var(--border-angle), #b45309, #fbbf24, #f59e0b, #d97706, #b45309) border-box;
+  animation: border-rotate 3s linear infinite;
+  --border-angle: 0deg;
+}
+.rarity-legendary-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 16px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 40%,
+    rgba(251, 191, 36, 0.4) 50%,
+    transparent 60%
+  );
+  animation: border-rotate 3s linear infinite;
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Mythic: rainbow rotating border + holographic sheen */
+.rarity-mythic {
+  position: relative;
+  border-color: transparent !important;
+  background:
+    linear-gradient(to bottom, rgba(15, 5, 25, 0.95), rgba(10, 5, 20, 0.9)) padding-box,
+    conic-gradient(from var(--border-angle), #f43f5e, #a855f7, #3b82f6, #06b6d4, #10b981, #eab308, #f43f5e) border-box;
+  animation: border-rotate 4s linear infinite;
+  --border-angle: 0deg;
+}
+.rarity-mythic-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 18px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 30%,
+    rgba(168, 85, 247, 0.5) 45%,
+    rgba(59, 130, 246, 0.5) 50%,
+    rgba(16, 185, 129, 0.5) 55%,
+    transparent 70%
+  );
+  animation: border-rotate 4s linear infinite;
+  filter: blur(14px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Holographic tilt overlay for mythic cards */
+@keyframes holo-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.holo-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(168, 85, 247, 0.08) 30%,
+    rgba(59, 130, 246, 0.12) 40%,
+    rgba(16, 185, 129, 0.08) 50%,
+    transparent 60%
+  );
+  background-size: 200% 200%;
+  animation: holo-shift 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Sparkle particles for legendary */
+@keyframes sparkle-1 {
+  0%, 100% { opacity: 0; transform: scale(0) translateY(0); }
+  50% { opacity: 1; transform: scale(1) translateY(-12px); }
+}
+@keyframes sparkle-2 {
+  0%, 100% { opacity: 0; transform: scale(0) translateY(0); }
+  50% { opacity: 0.8; transform: scale(0.8) translateY(-8px); }
+}
+
+/* Ability trigger flash */
+@keyframes ability-flash {
+  0% { opacity: 0; transform: scale(0.8); }
+  20% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.3); }
+}
+.animate-ability-flash {
+  animation: ability-flash 1.5s ease-out;
+}
+
+/* ── Battle animations ── */
+
+/* VS clash impact */
+@keyframes clash-impact {
+  0% { transform: scale(0); opacity: 0; }
+  40% { transform: scale(1.4); opacity: 1; }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-clash {
+  animation: clash-impact 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Card slide from sides */
+@keyframes slide-from-left {
+  0% { opacity: 0; transform: translateX(-80px) scale(0.8); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes slide-from-right {
+  0% { opacity: 0; transform: translateX(80px) scale(0.8); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+.animate-slide-left {
+  animation: slide-from-left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.animate-slide-right {
+  animation: slide-from-right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Dimension reveal cascade (stagger via delay) */
+@keyframes dim-reveal {
+  0% { opacity: 0; transform: translateY(16px) scale(0.9); }
+  50% { opacity: 1; transform: translateY(-4px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-dim-reveal {
+  animation: dim-reveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Victory banner */
+@keyframes victory-slam {
+  0% { opacity: 0; transform: scale(3) translateY(-20px); filter: blur(8px); }
+  60% { opacity: 1; transform: scale(0.95) translateY(2px); filter: blur(0px); }
+  80% { transform: scale(1.05) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.animate-victory {
+  animation: victory-slam 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Defeat shake */
+@keyframes defeat-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50% { transform: translateX(-6px); }
+  20%, 40% { transform: translateX(6px); }
+  60% { transform: translateX(-3px); }
+  70% { transform: translateX(3px); }
+  80% { transform: translateX(0); }
+}
+.animate-defeat {
+  animation: defeat-shake 0.6s ease-out;
+}
+
+/* Fighting energy ring */
+@keyframes energy-ring {
+  0% { transform: scale(0.5) rotate(0deg); opacity: 0.8; border-width: 3px; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 0.4; border-width: 1px; }
+  100% { transform: scale(2) rotate(360deg); opacity: 0; border-width: 0.5px; }
+}
+.energy-ring {
+  position: absolute;
+  border: 2px solid;
+  border-radius: 50%;
+  animation: energy-ring 1.5s ease-out infinite;
+}
+
+/* Glitch text for VS */
+@keyframes glitch-text {
+  0%, 100% { text-shadow: 2px 0 #f43f5e, -2px 0 #3b82f6; }
+  25% { text-shadow: -2px 2px #f43f5e, 2px -2px #3b82f6; }
+  50% { text-shadow: 2px -2px #f43f5e, -2px 2px #3b82f6; }
+  75% { text-shadow: -2px 0 #f43f5e, 2px 0 #3b82f6; }
+}
+.animate-glitch {
+  animation: glitch-text 0.3s ease-in-out 3;
+}
+
+/* ── Coding battle animations ── */
+
+/* Matrix code rain */
+@keyframes code-rain {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+.code-rain-col {
+  position: absolute;
+  top: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(6, 182, 212, 0.25);
+  white-space: pre;
+  animation: code-rain linear infinite;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Terminal cursor blink */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: currentColor;
+  animation: cursor-blink 0.8s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+
+/* Compile progress bar */
+@keyframes compile-progress {
+  0% { width: 0%; }
+  15% { width: 12%; }
+  30% { width: 28%; }
+  45% { width: 45%; }
+  55% { width: 58%; }
+  70% { width: 72%; }
+  85% { width: 88%; }
+  100% { width: 100%; }
+}
+.compile-bar {
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, #06b6d4, #a855f7, #f43f5e);
+  animation: compile-progress 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Scanning horizontal line */
+@keyframes scan-line {
+  0% { top: 0%; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.6), transparent);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+  animation: scan-line 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Typing text animation */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+.animate-typing {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 0.6s steps(20) forwards;
+}
+
+/* Binary stream float */
+@keyframes binary-float {
+  0% { transform: translateY(20px); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+.binary-stream {
+  font-family: var(--font-mono), monospace;
+  font-size: 9px;
+  line-height: 1.2;
+  color: rgba(6, 182, 212, 0.15);
+  animation: binary-float 2s ease-in-out infinite;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Hex pulse on dimension reveal */
+@keyframes hex-pulse {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* Data link lines between cards */
+@keyframes data-link {
+  0% { stroke-dashoffset: 200; opacity: 0; }
+  20% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.6; }
+}
+
+/* Code block reveal */
+@keyframes code-block-in {
+  0% { opacity: 0; transform: translateX(-10px); clip-path: inset(0 100% 0 0); }
+  100% { opacity: 1; transform: translateX(0); clip-path: inset(0 0 0 0); }
+}
+.animate-code-block {
+  animation: code-block-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Auto-scrolling code panel */
+@keyframes code-scroll-up {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+.code-scroll {
+  animation: code-scroll-up linear infinite;
+}
+
+/* Execution line highlight - sweeps through code */
+@keyframes exec-highlight {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+.exec-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16px;
+  pointer-events: none;
+  animation: exec-highlight 3s linear infinite;
+}
+
+/* Line appear stagger */
+@keyframes line-appear {
+  0% { opacity: 0; transform: translateX(-6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.animate-line-appear {
+  animation: line-appear 0.15s ease-out both;
+}
+
+/* Output stream line */
+@keyframes output-line {
+  0% { opacity: 0; max-height: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 1; max-height: 24px; }
+}
+.animate-output {
+  animation: output-line 0.3s ease-out both;
+  overflow: hidden;
+}
+
+/* Benchmark bar fill */
+@keyframes bench-fill {
+  0% { width: 0%; }
+  100% { width: var(--bench-pct); }
+}
+.bench-bar {
+  animation: bench-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Bracket flash on result */
+@keyframes bracket-flash {
+  0%, 100% { opacity: 0.2; color: rgba(100, 116, 139, 0.3); }
+  50% { opacity: 1; color: currentColor; }
+}
+.animate-bracket {
+  animation: bracket-flash 1.5s ease-in-out infinite;
+}
+
+/* ── Summon animations ── */
+
+/* Summoning circle rotation */
+@keyframes summon-circle {
+  0% { transform: rotate(0deg) scale(0.8); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: rotate(360deg) scale(1); opacity: 1; }
+}
+@keyframes summon-circle-reverse {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+.summon-ring {
+  border-radius: 50%;
+  border: 1px solid;
+  position: absolute;
+  animation: summon-circle 3s linear infinite;
+}
+.summon-ring-reverse {
+  border-radius: 50%;
+  border: 1px dashed;
+  position: absolute;
+  animation: summon-circle-reverse 5s linear infinite;
+}
+
+/* Energy converge — particles fly inward */
+@keyframes energy-converge {
+  0% { transform: translate(var(--cx), var(--cy)) scale(1); opacity: 1; }
+  100% { transform: translate(0, 0) scale(0); opacity: 0.6; }
+}
+.energy-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  animation: energy-converge 1.2s ease-in infinite;
+}
+
+/* Rarity burst — expands outward on reveal */
+@keyframes rarity-burst {
+  0% { transform: scale(0); opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
+.rarity-burst {
+  position: absolute;
+  border-radius: 50%;
+  animation: rarity-burst 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+/* Screen flash on legendary/mythic */
+@keyframes screen-flash {
+  0% { opacity: 0.6; }
+  100% { opacity: 0; }
+}
+.screen-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  animation: screen-flash 0.6s ease-out forwards;
+}
+
+/* Floating ambient particles */
+@keyframes particle-float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+  25% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
+  50% { transform: translateY(-10px) translateX(-5px); opacity: 0.4; }
+  75% { transform: translateY(-30px) translateX(8px); opacity: 0.5; }
+}
+.ambient-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.4);
+  animation: particle-float 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Summon portal pulse */
+@keyframes portal-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.2), inset 0 0 30px rgba(6, 182, 212, 0.1); }
+  50% { box-shadow: 0 0 60px rgba(6, 182, 212, 0.4), inset 0 0 60px rgba(6, 182, 212, 0.2); }
+}
+.portal-pulse {
+  animation: portal-pulse 2s ease-in-out infinite;
+}
+
+/* Rune symbols float */
+@keyframes rune-float {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
+  50% { transform: translateY(-15px) rotate(180deg); opacity: 0.5; }
+  100% { transform: translateY(0) rotate(360deg); opacity: 0.2; }
+}
+
+/* Card slam down with bounce */
+@keyframes card-slam {
+  0% { opacity: 0; transform: scale(0.3) translateY(-200px) rotateY(180deg); }
+  40% { opacity: 1; transform: scale(1.15) translateY(10px) rotateY(0deg); }
+  55% { transform: scale(0.95) translateY(-5px) rotateY(0deg); }
+  70% { transform: scale(1.05) translateY(2px) rotateY(0deg); }
+  100% { transform: scale(1) translateY(0) rotateY(0deg); }
+}
+.animate-card-slam {
+  animation: card-slam 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Rarity text glow */
+@keyframes rarity-text-glow {
+  0%, 100% { text-shadow: 0 0 10px currentColor; }
+  50% { text-shadow: 0 0 25px currentColor, 0 0 50px currentColor; }
+}
+.animate-rarity-glow {
+  animation: rarity-text-glow 2s ease-in-out infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.5); }
+
+/* Selection */
+::selection {
+  background: rgba(6, 182, 212, 0.3);
+  color: white;
 }

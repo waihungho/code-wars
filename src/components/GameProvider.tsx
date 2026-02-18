@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { getOrCreatePlayer, getPlayerCards, resetDailyPulls } from "@/lib/db";
+import { getOrCreatePlayer, getPlayerCards, resetDailyLimits } from "@/lib/db";
 import type { Card } from "@/lib/types";
 
 interface GameState {
@@ -38,7 +38,7 @@ export default function GameProvider({
   const refreshPlayer = useCallback(async () => {
     if (!publicKey) return;
     const p = await getOrCreatePlayer(publicKey.toBase58());
-    await resetDailyPulls(p.id);
+    await resetDailyLimits(p.id);
     const updated = await getOrCreatePlayer(publicKey.toBase58());
     setPlayer(updated);
   }, [publicKey]);

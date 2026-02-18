@@ -6,6 +6,7 @@ CREATE TABLE players (
   last_pull_reset TIMESTAMPTZ DEFAULT now() NOT NULL,
   xp INTEGER DEFAULT 0 NOT NULL,
   materials INTEGER DEFAULT 0 NOT NULL,
+  daily_battles INTEGER DEFAULT 0 NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
 
