@@ -16,6 +16,7 @@ import {
   deleteCard,
   updateCardStats,
   updatePlayerMaterials,
+  unequipAllFromCard,
 } from "@/lib/db";
 import type { Card, Dimension, Language } from "@/lib/types";
 
@@ -87,6 +88,7 @@ export default function CollectionPage() {
 
   const handleBurn = async (card: any) => {
     const materials = getBurnMaterials(card.rarity);
+    await unequipAllFromCard(card.id);
     await deleteCard(card.id);
     await updatePlayerMaterials(
       player.id,

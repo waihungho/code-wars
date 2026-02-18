@@ -14,10 +14,11 @@ import {
   insertBattleLog,
   updatePlayerAfterBattle,
   getPlayerDailyBattles,
+  getCardEquipment,
 } from "@/lib/db";
-import { MAX_DAILY_BATTLES, ABILITIES } from "@/lib/constants";
+import { MAX_DAILY_BATTLES, ABILITIES, EQUIPMENT_CATALOG } from "@/lib/constants";
 import { BATTLE_CODE, getAllCode } from "@/lib/battle-code";
-import type { Card, Dimension, BattleResult, Language } from "@/lib/types";
+import type { Card, Dimension, BattleResult, Language, EquipmentItem } from "@/lib/types";
 
 /* ── Label maps ── */
 
@@ -332,8 +333,21 @@ export default function BattlePage() {
     const dimensions = pickRandomDimensions();
     setAiPreview({ language: ai.language });
 
+    // Load equipped items for this card
+    const cardEquip = await getCardEquipment(selectedCard.id);
+    const { getPlayerInventory: getInv } = await import("@/lib/db");
+    const invItems = await getInv(player.id);
+    const resolvedItems: EquipmentItem[] = [];
+    for (const eq of cardEquip) {
+      const invItem = invItems?.find((i: any) => i.id === eq.inventory_id);
+      if (invItem) {
+        const catalogItem = EQUIPMENT_CATALOG.find(c => c.id === invItem.item_id);
+        if (catalogItem) resolvedItems.push(catalogItem);
+      }
+    }
+
     const cardForBattle: Card = { ...selectedCard, devExp: selectedCard.dev_exp };
-    const result = resolveBattle(cardForBattle, ai.stats, dimensions);
+    const result = resolveBattle(cardForBattle, ai.stats, dimensions, resolvedItems);
     result.aiLanguage = ai.language;
     result.aiStats = ai.stats;
     result.isPracticeMode = isPractice;
