@@ -391,7 +391,7 @@ export default function BattlePage() {
         <div>
           <p className="text-[10px] font-mono text-red-400/60 tracking-[0.2em] uppercase mb-1">Battle Arena</p>
           <h1 className="text-2xl font-bold font-mono">
-            <span className="text-red-400">Compile, Execute</span> & Flight
+            <span className="text-red-400">Compile, Execute</span> & Fight
           </h1>
         </div>
         <div className="flex items-center gap-4">
@@ -403,9 +403,9 @@ export default function BattlePage() {
             <span>{isPractice ? "PRACTICE MODE" : `${dailyBattles}/${MAX_DAILY_BATTLES} TODAY`}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-gray-500 tracking-wider">THREAT</span>
+            <span className="text-[10px] font-mono text-gray-500 tracking-wider">LVL</span>
             <div className="flex gap-1">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((d) => (
+              {[1, 2, 3, 4, 5].map((d) => (
                 <button
                   key={d}
                   onClick={() => setDifficulty(d)}
@@ -486,7 +486,7 @@ export default function BattlePage() {
               {compileStep >= 0 && (
                 <div className="animate-code-block">
                   <span className="text-gray-600">$</span>{" "}
-                  <span className="text-cyan-500/70">init --arena-mode=ranked --threat-level={difficulty}</span>
+                  <span className="text-cyan-500/70">init --arena-mode=ranked --lvl={difficulty}</span>
                 </div>
               )}
               {compileStep >= 1 && (
@@ -568,14 +568,14 @@ export default function BattlePage() {
           </div>
 
           {/* Card face-off */}
-          <div className="relative z-10 flex items-center justify-center gap-8 py-6">
+          <div className="relative z-10 flex items-center justify-center gap-10 py-6">
             <div className="text-center animate-slide-left">
-              <div className="relative w-24 h-32 rounded-xl overflow-hidden border-2 border-cyan-500/50 mx-auto mb-2 shadow-lg shadow-cyan-900/30">
-                <Image src={`/cards/${selectedCard.language}.png`} alt={selectedCard.language} fill className="object-cover" sizes="96px" />
+              <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-cyan-500/50 mx-auto mb-2 shadow-lg shadow-cyan-900/30">
+                <Image src={`/cards/${selectedCard.language}.png`} alt={selectedCard.language} fill className="object-cover" sizes="144px" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
               <p className="text-sm font-mono font-bold text-cyan-400">{selectedCard.language}</p>
-              <p className="text-[8px] font-mono text-cyan-600">{ABILITIES[selectedCard.language as Language]?.name}</p>
+              <p className="text-[9px] font-mono text-cyan-600">{ABILITIES[selectedCard.language as Language]?.name}</p>
             </div>
 
             <div className="animate-clash relative">
@@ -586,12 +586,12 @@ export default function BattlePage() {
             </div>
 
             <div className="text-center animate-slide-right">
-              <div className="relative w-24 h-32 rounded-xl overflow-hidden border-2 border-red-500/50 mx-auto mb-2 shadow-lg shadow-red-900/30">
-                <Image src={`/cards/${aiPreview?.language ?? "C"}.png`} alt={aiPreview?.language ?? "AI"} fill className="object-cover" sizes="96px" />
+              <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-red-500/50 mx-auto mb-2 shadow-lg shadow-red-900/30">
+                <Image src={`/cards/${aiPreview?.language ?? "C"}.png`} alt={aiPreview?.language ?? "AI"} fill className="object-cover" sizes="144px" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
               <p className="text-sm font-mono font-bold text-red-400">{aiPreview?.language ?? "???"}</p>
-              <p className="text-[8px] font-mono text-red-600">{aiPreview ? ABILITIES[aiPreview.language]?.name : ""}</p>
+              <p className="text-[9px] font-mono text-red-600">{aiPreview ? ABILITIES[aiPreview.language]?.name : ""}</p>
             </div>
           </div>
 
@@ -628,79 +628,136 @@ export default function BattlePage() {
       {(phase === "dimensions" || phase === "result") && battleResult && selectedCard && (
         <div className="space-y-4">
           {/* Final result — shown at top */}
-          {phase === "result" && (
-            <div className={`rounded-xl border overflow-hidden ${
-              battleResult.result === "win" ? "border-green-800/30 bg-black/40"
-                : battleResult.result === "lose" ? "border-red-800/30 bg-black/40"
-                : "border-yellow-800/30 bg-black/40"
-            }`}>
-              <div className="px-4 py-2 border-b border-gray-800/50 flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-red-500/50" />
-                  <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
-                  <div className="w-2 h-2 rounded-full bg-green-500/50" />
+          {phase === "result" && (() => {
+            const isWin = battleResult.result === "win";
+            const isLose = battleResult.result === "lose";
+            const roundsWon = battleResult.dimensionsPicked.filter((d) => {
+              const sk = d === "devExp" ? "dev_exp" : d;
+              return selectedCard[sk] > battleResult.aiStats[d];
+            }).length;
+            const accentColor = isWin ? "green" : isLose ? "red" : "yellow";
+
+            return (
+              <div className="relative overflow-hidden rounded-2xl border border-white/5">
+                {/* Full-width screen flash */}
+                <div className={`absolute inset-0 animate-result-flash pointer-events-none ${
+                  isWin ? "bg-green-500/30" : isLose ? "bg-red-500/30" : "bg-yellow-500/30"
+                }`} />
+
+                {/* Radial glow background */}
+                <div className={`absolute inset-0 pointer-events-none ${
+                  isWin ? "bg-[radial-gradient(ellipse_at_center,rgba(74,222,128,0.1)_0%,transparent_70%)]"
+                    : isLose ? "bg-[radial-gradient(ellipse_at_center,rgba(248,113,113,0.1)_0%,transparent_70%)]"
+                    : "bg-[radial-gradient(ellipse_at_center,rgba(250,204,21,0.1)_0%,transparent_70%)]"
+                }`} />
+
+                {/* Floating particles */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`absolute w-1 h-1 rounded-full ${
+                        isWin ? "bg-green-400" : isLose ? "bg-red-400" : "bg-yellow-400"
+                      }`}
+                      style={{
+                        left: `${8 + (i * 7.5)}%`,
+                        bottom: "20%",
+                        opacity: 0,
+                        animation: `result-particle ${1.5 + (i % 3) * 0.5}s ${i * 0.15}s ease-out infinite`,
+                      }}
+                    />
+                  ))}
                 </div>
-                <span className="text-[9px] font-mono text-gray-600 tracking-wider">BATTLE_RESULT</span>
-              </div>
 
-              <div className="p-6 text-center space-y-3">
-                <div className="font-mono text-xs text-gray-600 mb-3">
-                  <span className="text-gray-700">{"> "}</span>
-                  {playerLang}.fight(<span className="text-red-400">{aiLang}</span>)
-                </div>
+                <div className="relative z-10 py-10 px-6 text-center space-y-4">
+                  {/* Command line */}
+                  <div className="font-mono text-sm text-gray-500 animate-fade-in">
+                    <span className="text-gray-700">{"> "}</span>
+                    {playerLang}.<span className={`text-${accentColor}-400`}>fight</span>(<span className="text-red-400">{aiLang}</span>)
+                  </div>
 
-                <p className={`text-5xl font-bold font-mono tracking-wider ${
-                  battleResult.result === "win" ? "text-green-400 animate-victory"
-                    : battleResult.result === "lose" ? "text-red-400 animate-defeat"
-                    : "text-yellow-400 animate-victory"
-                }`}>
-                  {battleResult.result === "win" ? "VICTORY" : battleResult.result === "lose" ? "DEFEAT" : "DRAW"}
-                </p>
+                  {/* Main result title */}
+                  <p className={`text-7xl font-black font-mono tracking-widest animate-result-pulse ${
+                    isWin ? "text-green-400 animate-victory"
+                      : isLose ? "text-red-400 animate-defeat"
+                      : "text-yellow-400 animate-victory"
+                  }`}>
+                    {isWin ? "VICTORY" : isLose ? "DEFEAT" : "DRAW"}
+                  </p>
 
-                <div className="font-mono text-xs space-y-1">
-                  <p className="text-gray-600">
-                    <span className="text-purple-400/60">return</span>{" "}
-                    <span className="text-gray-700 animate-bracket">{"{"}</span> xp:{" "}
+                  {/* XP earned - big and glowing */}
+                  <div className="animate-xp-glow">
                     {battleResult.isPracticeMode ? (
-                      <span className="text-gray-600">0 <span className="text-gray-700">{"// daily cap"}</span></span>
+                      <p className="text-lg font-mono text-gray-600">
+                        <span className="text-purple-400/40">return</span> {"{ "}xp: <span className="text-gray-500">0</span>{" }"}
+                      </p>
                     ) : (
-                      <span className="text-green-400">+{battleResult.xpEarned}</span>
+                      <p className="text-lg font-mono">
+                        <span className="text-purple-400/60">return</span>{" "}
+                        <span className="text-gray-600">{"{"}</span> xp:{" "}
+                        <span className={`text-2xl font-bold ${isWin ? "text-green-400" : isLose ? "text-red-400" : "text-yellow-400"}`}>
+                          +{battleResult.xpEarned}
+                        </span>
+                        {" "}<span className="text-gray-600">{"}"}</span>
+                      </p>
                     )}
-                    {" "}<span className="text-gray-700 animate-bracket">{"}"}</span>
-                  </p>
-                  <p className="text-gray-700 text-[10px]">
-                    {battleResult.dimensionsPicked.filter((d) => {
+                  </div>
+
+                  {/* Rounds indicator dots */}
+                  <div className="flex items-center justify-center gap-3 animate-fade-in" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
+                    {battleResult.dimensionsPicked.map((d, i) => {
                       const sk = d === "devExp" ? "dev_exp" : d;
-                      return selectedCard[sk] > battleResult.aiStats[d];
-                    }).length}/{battleResult.dimensionsPicked.length} rounds won
-                  </p>
+                      const won = selectedCard[sk] > battleResult.aiStats[d];
+                      const tied = selectedCard[sk] === battleResult.aiStats[d];
+                      return (
+                        <div key={i} className="flex flex-col items-center gap-1">
+                          <div className={`w-4 h-4 rounded-full border-2 transition-all ${
+                            won ? "bg-green-500/40 border-green-400 shadow-[0_0_8px_rgba(74,222,128,0.5)]"
+                              : tied ? "bg-yellow-500/30 border-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.3)]"
+                              : "bg-red-500/30 border-red-400 shadow-[0_0_8px_rgba(248,113,113,0.3)]"
+                          }`} />
+                          <span className="text-[8px] font-mono text-gray-600 uppercase">R{i + 1}</span>
+                        </div>
+                      );
+                    })}
+                    <span className="text-xs font-mono text-gray-600 ml-2">
+                      {roundsWon}/{battleResult.dimensionsPicked.length} won
+                    </span>
+                  </div>
+
+                  {/* Fight again button */}
+                  <button
+                    onClick={() => { setPhase("idle"); setBattleResult(null); setAiPreview(null); setCompileStep(0); }}
+                    className={`animate-button-rise mt-2 px-10 py-3 rounded-xl text-sm font-mono font-bold tracking-wider uppercase
+                      transition-all cursor-pointer border ${
+                      isWin
+                        ? "bg-green-500/10 text-green-400 border-green-500/30 hover:bg-green-500/20 hover:border-green-400/50 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)]"
+                        : isLose
+                          ? "bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500/20 hover:border-red-400/50 hover:shadow-[0_0_20px_rgba(248,113,113,0.2)]"
+                          : "bg-yellow-500/10 text-yellow-400 border-yellow-500/30 hover:bg-yellow-500/20 hover:border-yellow-400/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)]"
+                    }`}
+                  >
+                    <span className="text-gray-600 mr-2">$</span> FIGHT AGAIN
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => { setPhase("idle"); setBattleResult(null); setAiPreview(null); setCompileStep(0); }}
-                  className="mt-4 px-8 py-2.5 rounded-lg text-xs font-mono font-bold tracking-wider uppercase
-                    bg-gray-800/50 text-gray-400 border border-gray-700 hover:bg-gray-700/50 hover:text-gray-300 transition-all cursor-pointer"
-                >
-                  <span className="text-gray-600 mr-2">$</span> RUN AGAIN
-                </button>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
-          {/* Mini matchup header */}
-          <div className="flex items-center justify-center gap-6">
+          {/* Matchup header */}
+          <div className="flex items-center justify-center gap-10">
             <div className="text-center animate-slide-left">
-              <div className="relative w-14 h-18 rounded-lg overflow-hidden border border-cyan-800/50 mx-auto mb-1">
-                <Image src={`/cards/${selectedCard.language}.png`} alt={selectedCard.language} fill className="object-cover" sizes="56px" />
+              <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-cyan-500/50 mx-auto mb-2 shadow-lg shadow-cyan-900/30">
+                <Image src={`/cards/${selectedCard.language}.png`} alt={selectedCard.language} fill className="object-cover" sizes="144px" />
               </div>
-              <p className="text-[9px] font-mono text-cyan-400">{selectedCard.language}</p>
+              <p className="text-sm font-mono font-bold text-cyan-400">{selectedCard.language}</p>
             </div>
-            <span className="text-xs font-mono text-gray-600 animate-clash">VS</span>
+            <span className="text-2xl font-mono font-black text-gray-600 animate-clash">VS</span>
             <div className="text-center animate-slide-right">
-              <div className="relative w-14 h-18 rounded-lg overflow-hidden border border-red-800/50 mx-auto mb-1">
-                <Image src={`/cards/${battleResult.aiLanguage}.png`} alt={battleResult.aiLanguage} fill className="object-cover" sizes="56px" />
+              <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-red-500/50 mx-auto mb-2 shadow-lg shadow-red-900/30">
+                <Image src={`/cards/${battleResult.aiLanguage}.png`} alt={battleResult.aiLanguage} fill className="object-cover" sizes="144px" />
               </div>
-              <p className="text-[9px] font-mono text-red-400">{battleResult.aiLanguage}</p>
+              <p className="text-sm font-mono font-bold text-red-400">{battleResult.aiLanguage}</p>
             </div>
           </div>
 

@@ -74,6 +74,7 @@ export default function CollectionPage() {
   const [selectedCard, setSelectedCard] = useState<any | null>(null);
   const [mode, setMode] = useState<VaultMode>("view");
   const [expandedLang, setExpandedLang] = useState<Language | null>(null);
+  const [confirmBurn, setConfirmBurn] = useState(false);
 
   if (!connected || !player) {
     return (
@@ -148,7 +149,7 @@ export default function CollectionPage() {
           {MODES.map((m) => (
             <button
               key={m.key}
-              onClick={() => setMode(m.key)}
+              onClick={() => { setMode(m.key); setConfirmBurn(false); }}
               className={`px-3 py-1.5 rounded text-xs font-mono tracking-wider transition-all border ${getModeStyle(m.key, mode === m.key)}`}
             >
               {m.label}
@@ -262,7 +263,7 @@ export default function CollectionPage() {
                   scalability={card.scalability}
                   dev_exp={card.dev_exp}
                   selected={selectedCard?.id === card.id}
-                  onClick={() => setSelectedCard(card)}
+                  onClick={() => { setSelectedCard(card); setConfirmBurn(false); }}
                   showAbility={mode === "view"}
                 />
               ))}
@@ -319,13 +320,37 @@ export default function CollectionPage() {
               <p className="text-sm font-mono text-gray-500">
                 Yields <span className="text-amber-400 font-bold">+{getBurnMaterials(selectedCard.rarity)}</span> materials
               </p>
-              <button
-                onClick={() => handleBurn(selectedCard)}
-                className="px-8 py-2 rounded-lg text-xs font-mono font-bold tracking-wider uppercase
-                  bg-red-600/20 text-red-400 border border-red-500/50 hover:bg-red-500/30 transition-all"
-              >
-                DECOMPOSE
-              </button>
+              {!confirmBurn ? (
+                <button
+                  onClick={() => setConfirmBurn(true)}
+                  className="px-8 py-2 rounded-lg text-xs font-mono font-bold tracking-wider uppercase
+                    bg-red-600/20 text-red-400 border border-red-500/50 hover:bg-red-500/30 transition-all"
+                >
+                  DECOMPOSE
+                </button>
+              ) : (
+                <div className="space-y-3 animate-slide-up">
+                  <p className="text-xs font-mono text-red-400 font-bold">
+                    This action is irreversible. Confirm?
+                  </p>
+                  <div className="flex justify-center gap-3">
+                    <button
+                      onClick={() => { handleBurn(selectedCard); setConfirmBurn(false); }}
+                      className="px-6 py-2 rounded-lg text-xs font-mono font-bold tracking-wider uppercase
+                        bg-red-600/30 text-red-300 border border-red-500/60 hover:bg-red-500/40 transition-all"
+                    >
+                      CONFIRM DECOMPOSE
+                    </button>
+                    <button
+                      onClick={() => setConfirmBurn(false)}
+                      className="px-6 py-2 rounded-lg text-xs font-mono font-bold tracking-wider uppercase
+                        bg-gray-800/50 text-gray-400 border border-gray-700/50 hover:bg-gray-700/30 transition-all"
+                    >
+                      CANCEL
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </>
