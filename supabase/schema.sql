@@ -12,7 +12,10 @@ CREATE TABLE players (
 
 -- Cards table
 CREATE TYPE language_enum AS ENUM (
-  'Assembly', 'C', 'Rust', 'Java', 'Go', 'JavaScript', 'Python', 'Solidity'
+  'Assembly', 'C', 'CPlusPlus', 'CSharp', 'Clojure', 'COBOL', 'Dart', 'Delphi',
+  'Elixir', 'Erlang', 'Go', 'Haskell', 'Java', 'JavaScript', 'Kotlin', 'Lua',
+  'MATLAB', 'Pascal', 'Perl', 'PHP', 'Python', 'R', 'Ruby', 'Rust',
+  'Scala', 'Solidity', 'SQL', 'Swift'
 );
 
 CREATE TYPE rarity_enum AS ENUM (
