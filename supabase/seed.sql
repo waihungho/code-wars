@@ -1,4 +1,4 @@
--- Equipment catalog seed data (all 25 items from src/lib/constants.ts)
+-- Equipment catalog seed data (from src/lib/constants.ts EQUIPMENT_CATALOG)
 INSERT INTO equipment_items (id, name, slot_type, effect_type, effect_value, sol_price, description) VALUES
 ('summon-3',         'Extra Summon (x3)',       'consumable',           'add_pulls',         '{"amount": 3}',                                                    0.02,  '+3 gacha pulls'),
 ('summon-10',        'Extra Summon (x10)',      'consumable',           'add_pulls',         '{"amount": 10}',                                                   0.05,  '+10 gacha pulls'),
