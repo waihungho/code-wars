@@ -1,5 +1,5 @@
 -- Equipment catalog seed data (from src/lib/constants.ts EQUIPMENT_CATALOG)
-INSERT INTO equipment_items (id, name, slot_type, effect_type, effect_value, sol_price, description) VALUES
+INSERT INTO card_equipment_items (id, name, slot_type, effect_type, effect_value, sol_price, description) VALUES
 ('summon-3',         'Extra Summon (x3)',       'consumable',           'add_pulls',         '{"amount": 3}',                                                    0.02,  '+3 gacha pulls'),
 ('summon-10',        'Extra Summon (x10)',      'consumable',           'add_pulls',         '{"amount": 10}',                                                   0.05,  '+10 gacha pulls'),
 ('summon-50',        'Extra Summon (x50)',      'consumable',           'add_pulls',         '{"amount": 50}',                                                   0.20,  '+50 gacha pulls'),

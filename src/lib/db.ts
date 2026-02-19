@@ -103,7 +103,7 @@ export async function getOrCreatePlayer(walletAddress: string) {
 
   const supabase = getSupabase()!;
   const { data: existing } = await supabase
-    .from("players")
+    .from("card_players")
     .select("*")
     .eq("wallet_address", walletAddress)
     .single();
@@ -111,7 +111,7 @@ export async function getOrCreatePlayer(walletAddress: string) {
   if (existing) return existing;
 
   const { data, error } = await supabase
-    .from("players")
+    .from("card_players")
     .insert({ wallet_address: walletAddress })
     .select()
     .single();
@@ -132,7 +132,7 @@ export async function getPlayerCards(playerId: string) {
 
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("cards")
+    .from("card_cards")
     .select("*")
     .eq("player_id", playerId)
     .order("created_at", { ascending: false });
@@ -164,7 +164,7 @@ export async function insertCard(card: {
 
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("cards")
+    .from("card_cards")
     .insert(card)
     .select()
     .single();
@@ -180,7 +180,7 @@ export async function deleteCard(cardId: string) {
   }
 
   const supabase = getSupabase()!;
-  const { error } = await supabase.from("cards").delete().eq("id", cardId);
+  const { error } = await supabase.from("card_cards").delete().eq("id", cardId);
   if (error) throw error;
 }
 
@@ -202,7 +202,7 @@ export async function updateCardStats(
 
   const supabase = getSupabase()!;
   const { error } = await supabase
-    .from("cards")
+    .from("card_cards")
     .update(stats)
     .eq("id", cardId);
 
@@ -229,7 +229,7 @@ export async function updatePlayerAfterBattle(
 
   const supabase = getSupabase()!;
   const { data: player } = await supabase
-    .from("players")
+    .from("card_players")
     .select("xp, daily_battles")
     .eq("id", playerId)
     .single();
@@ -239,7 +239,7 @@ export async function updatePlayerAfterBattle(
     newDailyBattles <= MAX_DAILY_BATTLES ? xpEarned : 0;
 
   const { error } = await supabase
-    .from("players")
+    .from("card_players")
     .update({
       xp: (player?.xp ?? 0) + effectiveXp,
       daily_battles: newDailyBattles,
@@ -257,7 +257,7 @@ export async function getPlayerDailyBattles(playerId: string): Promise<number> {
 
   const supabase = getSupabase()!;
   const { data } = await supabase
-    .from("players")
+    .from("card_players")
     .select("daily_battles")
     .eq("id", playerId)
     .single();
@@ -286,7 +286,7 @@ export async function insertBattleLog(log: {
 
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("battle_logs")
+    .from("card_battle_logs")
     .insert(log)
     .select()
     .single();
@@ -310,7 +310,7 @@ export async function updatePlayerMaterials(
 
   const supabase = getSupabase()!;
   const { error } = await supabase
-    .from("players")
+    .from("card_players")
     .update({ materials })
     .eq("id", playerId);
 
@@ -333,7 +333,7 @@ export async function resetDailyLimits(playerId: string) {
 
   const supabase = getSupabase()!;
   const { data: player } = await supabase
-    .from("players")
+    .from("card_players")
     .select("last_pull_reset, free_pulls_remaining, daily_battles")
     .eq("id", playerId)
     .single();
@@ -347,7 +347,7 @@ export async function resetDailyLimits(playerId: string) {
 
   if (isNewDay) {
     await supabase
-      .from("players")
+      .from("card_players")
       .update({
         free_pulls_remaining: FREE_PULLS_PER_DAY,
         daily_battles: 0,
@@ -369,7 +369,7 @@ export async function decrementPulls(playerId: string) {
 
   const supabase = getSupabase()!;
   const { data: player } = await supabase
-    .from("players")
+    .from("card_players")
     .select("free_pulls_remaining")
     .eq("id", playerId)
     .single();
@@ -379,7 +379,7 @@ export async function decrementPulls(playerId: string) {
   }
 
   await supabase
-    .from("players")
+    .from("card_players")
     .update({ free_pulls_remaining: player.free_pulls_remaining - 1 })
     .eq("id", playerId);
 }
@@ -393,7 +393,7 @@ export async function getPlayerInventory(playerId: string) {
   }
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("player_inventory")
+    .from("card_player_inventory")
     .select("*")
     .eq("player_id", playerId)
     .order("purchased_at", { ascending: false });
@@ -414,7 +414,7 @@ export async function addToInventory(playerId: string, itemId: string) {
   }
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("player_inventory")
+    .from("card_player_inventory")
     .insert({ player_id: playerId, item_id: itemId })
     .select()
     .single();
@@ -428,7 +428,7 @@ export async function removeFromInventory(inventoryId: string) {
     return;
   }
   const supabase = getSupabase()!;
-  const { error } = await supabase.from("player_inventory").delete().eq("id", inventoryId);
+  const { error } = await supabase.from("card_player_inventory").delete().eq("id", inventoryId);
   if (error) throw error;
 }
 
@@ -441,7 +441,7 @@ export async function getCardEquipment(cardId: string) {
   }
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("card_equipment")
+    .from("card_card_equipment")
     .select("*")
     .eq("card_id", cardId);
   if (error) throw error;
@@ -466,7 +466,7 @@ export async function equipItem(cardId: string, inventoryId: string, slotType: s
   }
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("card_equipment")
+    .from("card_card_equipment")
     .insert({ card_id: cardId, inventory_id: inventoryId, slot_type: slotType })
     .select()
     .single();
@@ -480,7 +480,7 @@ export async function unequipItem(equipmentId: string) {
     return;
   }
   const supabase = getSupabase()!;
-  const { error } = await supabase.from("card_equipment").delete().eq("id", equipmentId);
+  const { error } = await supabase.from("card_card_equipment").delete().eq("id", equipmentId);
   if (error) throw error;
 }
 
@@ -490,7 +490,7 @@ export async function unequipAllFromCard(cardId: string) {
     return;
   }
   const supabase = getSupabase()!;
-  const { error } = await supabase.from("card_equipment").delete().eq("card_id", cardId);
+  const { error } = await supabase.from("card_card_equipment").delete().eq("card_id", cardId);
   if (error) throw error;
 }
 
@@ -515,7 +515,7 @@ export async function recordTransaction(tx: {
   }
   const supabase = getSupabase()!;
   const { data, error } = await supabase
-    .from("sol_transactions")
+    .from("card_sol_transactions")
     .insert(tx)
     .select()
     .single();
@@ -531,7 +531,7 @@ export async function updateTransactionStatus(txId: string, status: string) {
   }
   const supabase = getSupabase()!;
   const { error } = await supabase
-    .from("sol_transactions")
+    .from("card_sol_transactions")
     .update({ status })
     .eq("id", txId);
   if (error) throw error;
@@ -548,13 +548,13 @@ export async function addBonusPulls(playerId: string, amount: number) {
   }
   const supabase = getSupabase()!;
   const { data: player } = await supabase
-    .from("players")
+    .from("card_players")
     .select("free_pulls_remaining")
     .eq("id", playerId)
     .single();
   if (!player) throw new Error("Player not found");
   const { error } = await supabase
-    .from("players")
+    .from("card_players")
     .update({ free_pulls_remaining: player.free_pulls_remaining + amount })
     .eq("id", playerId);
   if (error) throw error;
@@ -568,13 +568,13 @@ export async function addBonusBattles(playerId: string, amount: number) {
   }
   const supabase = getSupabase()!;
   const { data: player } = await supabase
-    .from("players")
+    .from("card_players")
     .select("daily_battles")
     .eq("id", playerId)
     .single();
   if (!player) throw new Error("Player not found");
   const { error } = await supabase
-    .from("players")
+    .from("card_players")
     .update({ daily_battles: Math.max(0, player.daily_battles - amount) })
     .eq("id", playerId);
   if (error) throw error;
