@@ -16,7 +16,7 @@ import {
   getPlayerDailyBattles,
   getCardEquipment,
 } from "@/lib/db";
-import { MAX_DAILY_BATTLES, ABILITIES, EQUIPMENT_CATALOG } from "@/lib/constants";
+import { MAX_DAILY_BATTLES, ABILITIES, EQUIPMENT_CATALOG, getCardImagePath } from "@/lib/constants";
 import { BATTLE_CODE, getAllCode } from "@/lib/battle-code";
 import type { Card, Dimension, BattleResult, Language, EquipmentItem } from "@/lib/types";
 
@@ -585,7 +585,7 @@ export default function BattlePage() {
           <div className="relative z-10 flex items-center justify-center gap-10 py-6">
             <div className="text-center animate-slide-left">
               <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-cyan-500/50 mx-auto mb-2 shadow-lg shadow-cyan-900/30">
-                <Image src={`/cards/${selectedCard.language}.png`} alt={selectedCard.language} fill className="object-cover" sizes="144px" />
+                <Image src={getCardImagePath(selectedCard.language, selectedCard.rarity)} alt={selectedCard.language} fill className="object-cover" sizes="144px" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
               <p className="text-sm font-mono font-bold text-cyan-400">{selectedCard.language}</p>
@@ -601,7 +601,7 @@ export default function BattlePage() {
 
             <div className="text-center animate-slide-right">
               <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-red-500/50 mx-auto mb-2 shadow-lg shadow-red-900/30">
-                <Image src={`/cards/${aiPreview?.language ?? "C"}.png`} alt={aiPreview?.language ?? "AI"} fill className="object-cover" sizes="144px" />
+                <Image src={getCardImagePath(aiPreview?.language ?? "C")} alt={aiPreview?.language ?? "AI"} fill className="object-cover" sizes="144px" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
               <p className="text-sm font-mono font-bold text-red-400">{aiPreview?.language ?? "???"}</p>
@@ -762,14 +762,14 @@ export default function BattlePage() {
           <div className="flex items-center justify-center gap-10">
             <div className="text-center animate-slide-left">
               <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-cyan-500/50 mx-auto mb-2 shadow-lg shadow-cyan-900/30">
-                <Image src={`/cards/${selectedCard.language}.png`} alt={selectedCard.language} fill className="object-cover" sizes="144px" />
+                <Image src={getCardImagePath(selectedCard.language, selectedCard.rarity)} alt={selectedCard.language} fill className="object-cover" sizes="144px" />
               </div>
               <p className="text-sm font-mono font-bold text-cyan-400">{selectedCard.language}</p>
             </div>
             <span className="text-2xl font-mono font-black text-gray-600 animate-clash">VS</span>
             <div className="text-center animate-slide-right">
               <div className="relative w-36 h-48 rounded-xl overflow-hidden border-2 border-red-500/50 mx-auto mb-2 shadow-lg shadow-red-900/30">
-                <Image src={`/cards/${battleResult.aiLanguage}.png`} alt={battleResult.aiLanguage} fill className="object-cover" sizes="144px" />
+                <Image src={getCardImagePath(battleResult.aiLanguage)} alt={battleResult.aiLanguage} fill className="object-cover" sizes="144px" />
               </div>
               <p className="text-sm font-mono font-bold text-red-400">{battleResult.aiLanguage}</p>
             </div>

@@ -79,11 +79,11 @@ export const BASE_STATS: Record<Language, Stats> = {
 };
 
 export const RARITY_ODDS: Record<Rarity, number> = {
-  Common: 0.5,
+  Common: 0.504,
   Uncommon: 0.3,
   Rare: 0.15,
   Legendary: 0.045,
-  Mythic: 0.005,
+  Mythic: 0.001,
 };
 
 export const RARITY_STAT_MULTIPLIERS: Record<Rarity, number> = {
@@ -93,6 +93,13 @@ export const RARITY_STAT_MULTIPLIERS: Record<Rarity, number> = {
   Legendary: 2.0,
   Mythic: 3.0,
 };
+
+export function getCardImagePath(language: string, rarity?: string): string {
+  if (rarity === "Mythic") {
+    return `/cards/mythic/${language}.png`;
+  }
+  return `/cards/${language}.png`;
+}
 
 export const MAX_STAT = 1000;
 export const FREE_PULLS_PER_DAY = 3;
@@ -337,12 +344,12 @@ export const UNEQUIP_FEE_SOL = 0.01;
 
 export const EQUIPMENT_CATALOG: EquipmentItem[] = [
   // --- Consumables ---
-  { id: "summon-3",         name: "Extra Summon (x3)",       slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 3 },                                                    solPrice: 0.01,  description: "+3 gacha pulls" },
-  { id: "summon-10",        name: "Extra Summon (x10)",      slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 10 },                                                   solPrice: 0.03,  description: "+10 gacha pulls" },
-  { id: "summon-50",        name: "Extra Summon (x50)",      slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 50 },                                                   solPrice: 0.12,  description: "+50 gacha pulls" },
+  { id: "summon-3",         name: "Extra Summon (x3)",       slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 3 },                                                    solPrice: 0.02,  description: "+3 gacha pulls" },
+  { id: "summon-10",        name: "Extra Summon (x10)",      slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 10 },                                                   solPrice: 0.05,  description: "+10 gacha pulls" },
+  { id: "summon-50",        name: "Extra Summon (x50)",      slotType: "consumable",           effectType: "add_pulls",         effectValue: { amount: 50 },                                                   solPrice: 0.2,   description: "+50 gacha pulls" },
   { id: "battle-10",        name: "Battle Pass (x10)",       slotType: "consumable",           effectType: "add_battles",       effectValue: { amount: 10 },                                                   solPrice: 0.01,  description: "+10 daily battles" },
   { id: "battle-20",        name: "Battle Pass (x20)",       slotType: "consumable",           effectType: "add_battles",       effectValue: { amount: 20 },                                                   solPrice: 0.02,  description: "+20 daily battles" },
-  { id: "battle-unlimited", name: "Unlimited Battle Pass",   slotType: "consumable",           effectType: "unlimited_battles", effectValue: { hours: 24 },                                                    solPrice: 0.1,   description: "Unlimited battles for 24h" },
+  { id: "battle-unlimited", name: "Unlimited Battle Pass",   slotType: "consumable",           effectType: "unlimited_battles", effectValue: { hours: 24 },                                                    solPrice: 1,     description: "Unlimited battles for 24h" },
   // --- Stat Boost (Slot 1) ---
   { id: "stat-chip-1",      name: "Stat Chip I",             slotType: "stat_boost",           effectType: "stat_percent",      effectValue: { percent: 10 },                                                  solPrice: 0.05,  description: "+10% to one stat" },
   { id: "stat-chip-2",      name: "Stat Chip II",            slotType: "stat_boost",           effectType: "stat_percent",      effectValue: { percent: 25 },                                                  solPrice: 0.2,   description: "+25% to one stat" },

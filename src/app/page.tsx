@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useWallet } from "@solana/wallet-adapter-react";
 import dynamic from "next/dynamic";
 import { useGame } from "@/components/GameProvider";
-import { LANGUAGES } from "@/lib/constants";
+import { LANGUAGES, getCardImagePath } from "@/lib/constants";
 
 const WalletMultiButton = dynamic(
   () =>
@@ -39,7 +39,7 @@ export default function HomePage() {
 
         {/* Scrolling card showcase */}
         <div className="w-full overflow-hidden -mx-4">
-          <div className="flex gap-4 animate-[scroll_20s_linear_infinite] hover:[animation-play-state:paused]"
+          <div className="flex gap-4 animate-[scroll_45s_linear_infinite] hover:[animation-play-state:paused]"
                style={{ width: "max-content" }}>
             {[...LANGUAGES, ...LANGUAGES].map((lang, i) => (
               <div key={`${lang}-${i}`} className="relative w-36 h-48 rounded-lg overflow-hidden border border-gray-800/50 shrink-0 opacity-70 hover:opacity-100 transition-opacity">
@@ -54,6 +54,38 @@ export default function HomePage() {
                 <span className="absolute bottom-2 left-2 text-[10px] font-mono text-gray-300">{lang}</span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Mythic card showcase — blurred to tease */}
+        <div className="w-full space-y-3">
+          <p className="text-[10px] font-mono text-fuchsia-400/60 tracking-[0.2em] uppercase text-center">
+            Mythic Collection — 0.1% Drop Rate
+          </p>
+          <div className="w-full overflow-hidden -mx-4">
+            <div className="flex gap-4 animate-[scroll-reverse_50s_linear_infinite] hover:[animation-play-state:paused]"
+                 style={{ width: "max-content" }}>
+              {[...LANGUAGES, ...LANGUAGES].map((lang, i) => (
+                <div key={`mythic-${lang}-${i}`} className="relative w-36 h-48 rounded-lg overflow-hidden shrink-0 border-[2px] rarity-mythic">
+                  <Image
+                    src={getCardImagePath(lang, "Mythic")}
+                    alt={`Mythic ${lang}`}
+                    fill
+                    className="object-cover blur-[2px] scale-105"
+                    sizes="144px"
+                  />
+                  <div className="absolute inset-0 bg-black/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider bg-purple-600 text-purple-100 animate-pulse">
+                    SSR
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-lg text-fuchsia-400/60">?</span>
+                  </div>
+                  <span className="absolute bottom-2 left-2 text-[10px] font-mono text-fuchsia-400/50">{lang}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -102,7 +134,7 @@ export default function HomePage() {
 
       {/* Scrolling card showcase */}
       <div className="w-full overflow-hidden -mx-4">
-        <div className="flex gap-4 animate-[scroll_20s_linear_infinite] hover:[animation-play-state:paused]"
+        <div className="flex gap-4 animate-[scroll_45s_linear_infinite] hover:[animation-play-state:paused]"
              style={{ width: "max-content" }}>
           {[...LANGUAGES, ...LANGUAGES].map((lang, i) => (
             <div key={`${lang}-${i}`} className="relative w-36 h-48 rounded-lg overflow-hidden border border-gray-800/50 shrink-0 opacity-70 hover:opacity-100 transition-opacity">
@@ -117,6 +149,38 @@ export default function HomePage() {
               <span className="absolute bottom-2 left-2 text-[10px] font-mono text-gray-300">{lang}</span>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Mythic card showcase — blurred to tease */}
+      <div className="w-full space-y-3">
+        <p className="text-[10px] font-mono text-fuchsia-400/60 tracking-[0.2em] uppercase text-center">
+          Mythic Collection — 0.1% Drop Rate
+        </p>
+        <div className="w-full overflow-hidden -mx-4">
+          <div className="flex gap-4 animate-[scroll-reverse_50s_linear_infinite] hover:[animation-play-state:paused]"
+               style={{ width: "max-content" }}>
+            {[...LANGUAGES, ...LANGUAGES].map((lang, i) => (
+              <div key={`mythic-${lang}-${i}`} className="relative w-36 h-48 rounded-lg overflow-hidden shrink-0 border-[2px] rarity-mythic">
+                <Image
+                  src={getCardImagePath(lang, "Mythic")}
+                  alt={`Mythic ${lang}`}
+                  fill
+                  className="object-cover blur-[2px] scale-105"
+                  sizes="144px"
+                />
+                <div className="absolute inset-0 bg-black/30" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
+                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider bg-purple-600 text-purple-100 animate-pulse">
+                  SSR
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg text-fuchsia-400/60">?</span>
+                </div>
+                <span className="absolute bottom-2 left-2 text-[10px] font-mono text-fuchsia-400/50">{lang}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -154,7 +218,7 @@ export default function HomePage() {
             {cards.slice(0, 5).map((card: any) => (
               <div key={card.id} className="relative w-28 h-36 rounded-lg overflow-hidden border border-gray-800 shrink-0">
                 <Image
-                  src={`/cards/${card.language}.png`}
+                  src={getCardImagePath(card.language, card.rarity)}
                   alt={card.language}
                   fill
                   className="object-cover"

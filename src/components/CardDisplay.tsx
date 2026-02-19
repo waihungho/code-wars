@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { DIMENSIONS, ABILITIES } from "@/lib/constants";
+import { DIMENSIONS, ABILITIES, getCardImagePath } from "@/lib/constants";
 import type { Dimension, Language } from "@/lib/types";
 
 const LANGUAGE_THEMES: Record<string, { border: string; glow: string; bg: string; accent: string; title: string }> = {
@@ -134,7 +134,7 @@ export default function CardDisplay({
         {/* Card art */}
         <div className="relative aspect-[3/4] w-full overflow-hidden">
           <Image
-            src={`/cards/${language}.png`}
+            src={getCardImagePath(language, rarity)}
             alt={language}
             fill
             className="object-cover"
